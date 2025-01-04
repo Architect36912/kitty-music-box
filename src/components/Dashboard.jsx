@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   PlayArrow, Pause, Stop, SkipPrevious, SkipNext,
   Settings, Refresh, Help, LightMode, DarkMode,
@@ -8,6 +8,7 @@ import { IconButton, Slider, Tooltip } from '@mui/material';
 import GridSequencer from './GridSequencer';
 import KittySynth from './KittySynth';
 import KittyTour from './KittyTour';
+import AITrayManager from './AITrayManager';
 
 const Dashboard = () => {
   const [isDarkMode, setIsDarkMode] = useState(true);
@@ -16,6 +17,7 @@ const Dashboard = () => {
   const [volume, setVolume] = useState(75);
   const [selectedInstrument, setSelectedInstrument] = useState('marimba');
   const [isTourOpen, setIsTourOpen] = useState(true);
+  const [gridState, setGridState] = useState(null);
 
   const handlePlayPause = () => {
     setIsPlaying(!isPlaying);
@@ -25,6 +27,18 @@ const Dashboard = () => {
     setIsPlaying(false);
     // Add stop logic
   };
+
+  const handleGridStateChange = useCallback((newState) => {
+    setGridState(newState);
+  }, []);
+
+  const handlePatternApply = useCallback((pattern) => {
+    // Apply the AI-generated pattern to the grid
+    if (pattern) {
+      // Update grid with new pattern
+      console.log('Applying pattern:', pattern);
+    }
+  }, []);
 
   return (
     <div className={`app-container ${isDarkMode ? 'dark-mode' : ''}`}>
@@ -73,7 +87,10 @@ const Dashboard = () => {
           </div>
 
           <div className="grid-sequencer">
-            <GridSequencer isDarkMode={isDarkMode} />
+            <GridSequencer 
+              isDarkMode={isDarkMode} 
+              onStateChange={handleGridStateChange}
+            />
           </div>
 
           {/* Playback Controls */}
@@ -100,8 +117,7 @@ const Dashboard = () => {
               value={tempo}
               onChange={(e, newValue) => setTempo(newValue)}
               min={60}
-              max={180}
-              className="slider"
+              max={200}
             />
             <div className="value">{tempo} BPM</div>
           </div>
@@ -115,7 +131,6 @@ const Dashboard = () => {
               onChange={(e, newValue) => setVolume(newValue)}
               min={0}
               max={100}
-              className="slider"
             />
             <div className="value">{volume}%</div>
           </div>
@@ -127,8 +142,17 @@ const Dashboard = () => {
         </div>
       </main>
 
-      {/* Tour */}
-      <KittyTour isOpen={isTourOpen} onClose={() => setIsTourOpen(false)} />
+      {/* AI Tray Manager */}
+      <AITrayManager 
+        gridState={gridState}
+        onApplyPattern={handlePatternApply}
+      />
+
+      {/* Tour Guide */}
+      <KittyTour
+        isOpen={isTourOpen}
+        onClose={() => setIsTourOpen(false)}
+      />
     </div>
   );
 };

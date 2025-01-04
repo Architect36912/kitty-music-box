@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   IconButton, 
   Tooltip,
+  Box,
+  Typography
 } from '@mui/material';
 import {
   PlayArrow,
@@ -13,33 +15,127 @@ import {
   Refresh,
 } from '@mui/icons-material';
 
-const NOTES = [
-  { note: 'C4', display: 'C4' },
-  { note: 'B3', display: 'B3' },
-  { note: 'A3', display: 'A3' },
-  { note: 'G3', display: 'G3' },
-  { note: 'F3', display: 'F3' },
-  { note: 'E3', display: 'E3' },
-  { note: 'D3', display: 'D3' },
-  { note: 'C3', display: 'C3' },
-  { note: 'Hi-Hat', display: 'Hi-Hat' }
+// Define all available notes and their octaves
+const ALL_NOTES = [
+  'C1', 'D1', 'E1', 'F1', 'G1', 'A1', 'B1',
+  'C2', 'D2', 'E2', 'F2', 'G2', 'A2', 'B2',
+  'C3', 'D3', 'E3', 'F3', 'G3', 'A3', 'B3',
+  'C4', 'D4', 'E4', 'F4', 'G4', 'A4', 'B4',
+  'C5', 'D5', 'E5', 'F5', 'G5', 'A5', 'B5'
+];
+
+const DISPLAY_NOTES = [
+  'C4', 'B3', 'A3', 'G3', 'F3', 'E3', 'D3', 'C3'
 ];
 
 const BEATS = 16;
 
-const GridSequencer = () => {
-  const [grid, setGrid] = useState(Array(NOTES.length).fill().map(() => Array(BEATS).fill(null)));
+const NOTE_KEYS = {
+  'C': 'C',
+  'D': 'D',
+  'E': 'E',
+  'F': 'F',
+  'G': 'G',
+  'A': 'A',
+  'B': 'B'
+};
+
+const OCTAVE_KEYS = {
+  '1': '1',
+  '2': '2',
+  '3': '3',
+  '4': '4',
+  '5': '5'
+};
+
+const GridSequencer = ({ isDarkMode, onStateChange }) => {
+  const [grid, setGrid] = useState(Array(DISPLAY_NOTES.length).fill().map(() => Array(BEATS).fill(null)));
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLooping, setIsLooping] = useState(true);
   const [currentStep, setCurrentStep] = useState(0);
+  const [selectedNote, setSelectedNote] = useState(null);
+  const [pressedKeys, setPressedKeys] = useState(new Set());
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      const key = e.key.toUpperCase();
+      
+      if (!pressedKeys.has(key)) {
+        setPressedKeys(prev => {
+          const newKeys = new Set(prev);
+          newKeys.add(key);
+          return newKeys;
+        });
+      }
+
+      // Check if we have both a note and octave pressed
+      const pressedNoteKey = Array.from(pressedKeys).find(k => NOTE_KEYS[k]);
+      const pressedOctaveKey = Array.from(pressedKeys).find(k => OCTAVE_KEYS[k]);
+
+      if (pressedNoteKey && pressedOctaveKey) {
+        const newNote = `${pressedNoteKey}${pressedOctaveKey}`;
+        setSelectedNote(newNote);
+      }
+    };
+
+    const handleKeyUp = (e) => {
+      const key = e.key.toUpperCase();
+      setPressedKeys(prev => {
+        const newKeys = new Set(prev);
+        newKeys.delete(key);
+        return newKeys;
+      });
+
+      // Clear selected note if either note or octave key is released
+      if (NOTE_KEYS[key] || OCTAVE_KEYS[key]) {
+        setSelectedNote(null);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keyup', handleKeyUp);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keyup', handleKeyUp);
+    };
+  }, [pressedKeys]);
 
   const toggleCell = (row, col) => {
     const newGrid = [...grid];
+    
     if (!newGrid[row][col]) {
-      const noteNumber = (row % 6) + 1;
-      newGrid[row][col] = { type: 'melodic', number: noteNumber };
+      const noteToAdd = selectedNote || DISPLAY_NOTES[row];
+      newGrid[row][col] = {
+        type: 'note',
+        note: noteToAdd,
+        velocity: 1
+      };
+
+      // Notify parent of state change
+      if (onStateChange) {
+        onStateChange({
+          grid: newGrid,
+          isPlaying,
+          currentStep,
+          lastAction: 'add',
+          position: { row, col },
+          note: noteToAdd
+        });
+      }
     } else {
       newGrid[row][col] = null;
+      
+      // Notify parent of state change
+      if (onStateChange) {
+        onStateChange({
+          grid: newGrid,
+          isPlaying,
+          currentStep,
+          lastAction: 'remove',
+          position: { row, col }
+        });
+      }
     }
     setGrid(newGrid);
   };
@@ -57,89 +153,62 @@ const GridSequencer = () => {
   };
 
   return (
-    <div className="app-container">
-      <div className="title-bar">
-        <h1>PROJECT 3000</h1>
-      </div>
-      
-      <div className="controls-bar">
-        <Tooltip title="Previous Beat">
-          <IconButton onClick={() => setCurrentStep((prev) => (prev - 1 + BEATS) % BEATS)}>
-            <FastRewind />
-          </IconButton>
-        </Tooltip>
-        
-        <Tooltip title={isPlaying ? "Pause" : "Play"}>
-          <IconButton className="play-button" onClick={handlePlayPause}>
+    <div className={`grid-sequencer ${isDarkMode ? 'dark' : 'light'}`}>
+      <Box sx={{ mb: 2 }}>
+        <Typography variant="subtitle2" color="primary">
+          {selectedNote 
+            ? `Selected Note: ${selectedNote}` 
+            : 'Hold a note (C-B) + number (1-5) to select a note'}
+        </Typography>
+      </Box>
+
+      <div className="controls">
+        <Tooltip title={isPlaying ? 'Pause' : 'Play'}>
+          <IconButton onClick={handlePlayPause}>
             {isPlaying ? <Pause /> : <PlayArrow />}
           </IconButton>
         </Tooltip>
-        
         <Tooltip title="Stop">
           <IconButton onClick={handleStop}>
             <Stop />
           </IconButton>
         </Tooltip>
-        
-        <Tooltip title="Next Beat">
-          <IconButton onClick={() => setCurrentStep((prev) => (prev + 1) % BEATS)}>
-            <FastForward />
+        <Tooltip title={isLooping ? 'Disable Loop' : 'Enable Loop'}>
+          <IconButton onClick={() => setIsLooping(!isLooping)}>
+            <Loop color={isLooping ? 'primary' : 'inherit'} />
           </IconButton>
         </Tooltip>
-
         <Tooltip title="Clear Grid">
-          <IconButton onClick={() => setGrid(Array(NOTES.length).fill().map(() => Array(BEATS).fill(null)))}>
+          <IconButton onClick={() => setGrid(Array(DISPLAY_NOTES.length).fill().map(() => Array(BEATS).fill(null)))}>
             <Refresh />
-          </IconButton>
-        </Tooltip>
-        
-        <Tooltip title={isLooping ? "Loop On" : "Loop Off"}>
-          <IconButton 
-            onClick={() => setIsLooping(!isLooping)}
-            color={isLooping ? "primary" : "default"}
-          >
-            <Loop />
           </IconButton>
         </Tooltip>
       </div>
 
-      <div className="grid-section">
-        <div className="note-labels">
-          {NOTES.map((note, index) => (
-            <div key={index} className="note-label">
-              {note.display}
+      <div className="grid">
+        {grid.map((row, rowIndex) => (
+          <div key={rowIndex} className="row">
+            <div className="note-label">
+              {DISPLAY_NOTES[rowIndex]}
+              {selectedNote && (
+                <span className="shortcut-hint">
+                  {Array.from(pressedKeys).join('+')}
+                </span>
+              )}
             </div>
-          ))}
-        </div>
-
-        <div className="grid-container">
-          <div className="beat-numbers">
-            {Array(BEATS).fill().map((_, i) => (
-              <div key={i} className="beat-number">
-                {i + 1}
-              </div>
+            {row.map((cell, colIndex) => (
+              <div
+                key={colIndex}
+                className={`cell ${cell ? 'active' : ''} ${
+                  currentStep === colIndex ? 'current' : ''
+                } ${
+                  selectedNote === DISPLAY_NOTES[rowIndex] ? 'selected' : ''
+                }`}
+                onClick={() => toggleCell(rowIndex, colIndex)}
+              />
             ))}
           </div>
-
-          <div className="grid">
-            {grid.map((row, rowIndex) => (
-              row.map((cell, colIndex) => (
-                <Tooltip 
-                  key={`${rowIndex}-${colIndex}`}
-                  title={`${NOTES[rowIndex].display} - Beat ${colIndex + 1}`}
-                  placement="top"
-                >
-                  <div
-                    className={`cell ${cell ? `${cell.type} note-${cell.number}` : ''} ${colIndex === currentStep ? 'current' : ''}`}
-                    onClick={() => toggleCell(rowIndex, colIndex)}
-                    role="button"
-                    aria-label={`${NOTES[rowIndex].display} - Beat ${colIndex + 1}`}
-                  />
-                </Tooltip>
-              ))
-            ))}
-          </div>
-        </div>
+        ))}
       </div>
     </div>
   );

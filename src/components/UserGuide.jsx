@@ -1,139 +1,149 @@
 import React from 'react';
-import { Box, Typography, Paper, Stack, Divider, IconButton } from '@mui/material';
-import { Close, MusicNote, AutoAwesome, Equalizer, PlayArrow, 
-  Undo, Redo, VolumeUp, DragIndicator } from '@mui/icons-material';
+import { 
+  Dialog, 
+  DialogTitle, 
+  DialogContent, 
+  Typography, 
+  Box,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  Divider,
+  IconButton
+} from '@mui/material';
+import {
+  MusicNote,
+  Keyboard,
+  PlayArrow,
+  AutoAwesome,
+  Close
+} from '@mui/icons-material';
 
-const GuideSection = ({ title, children }) => (
-  <Box sx={{ mb: 4 }}>
-    <Typography variant="h6" sx={{ mb: 2, color: '#7c4dff' }}>
-      {title}
-    </Typography>
-    {children}
-  </Box>
-);
-
-const Feature = ({ icon, title, description }) => (
-  <Stack direction="row" spacing={2} sx={{ mb: 2 }}>
-    <Box sx={{ color: '#7c4dff' }}>{icon}</Box>
-    <Box>
-      <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
-        {title}
-      </Typography>
-      <Typography variant="body2" color="text.secondary">
-        {description}
-      </Typography>
-    </Box>
-  </Stack>
-);
-
-export default function UserGuide({ onClose }) {
+const UserGuide = ({ open, onClose }) => {
   return (
-    <Box sx={{ 
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      bgcolor: 'rgba(0,0,0,0.5)',
-      zIndex: 2000,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      p: 3
-    }}>
-      <Paper sx={{ 
-        maxWidth: 800,
-        maxHeight: '90vh',
-        width: '100%',
-        overflow: 'auto',
-        p: 4,
-        position: 'relative'
+    <Dialog 
+      open={open} 
+      onClose={onClose}
+      maxWidth="md"
+      fullWidth
+      PaperProps={{
+        sx: {
+          bgcolor: 'background.paper',
+          color: 'text.primary',
+          p: 2
+        }
+      }}
+    >
+      <DialogTitle sx={{ 
+        display: 'flex', 
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        color: 'black'
       }}>
-        <IconButton 
-          onClick={onClose}
-          sx={{ position: 'absolute', top: 8, right: 8 }}
-        >
+        <Typography variant="h5" component="span" sx={{ color: 'black', fontWeight: 'bold' }}>
+          🐱 Kitty's Music Box - User Guide
+        </Typography>
+        <IconButton onClick={onClose} sx={{ color: 'black' }}>
           <Close />
         </IconButton>
+      </DialogTitle>
 
-        <Typography variant="h4" sx={{ mb: 4, color: '#7c4dff' }}>
-          Welcome to Kitty's Music Box! 🎵
-        </Typography>
-
-        <GuideSection title="Getting Started">
-          <Typography variant="body1" sx={{ mb: 2 }}>
-            Kitty's Music Box is a fun and creative way to make music! Click on the grid cells to create
-            melodies, use effects to enhance your sound, and let AI help you compose amazing tunes.
+      <DialogContent>
+        <Box sx={{ color: 'black' }}>
+          <Typography variant="h6" sx={{ mt: 2, mb: 1, color: 'black' }}>
+            Quick Start
           </Typography>
-        </GuideSection>
+          <List>
+            <ListItem>
+              <ListItemIcon>
+                <MusicNote sx={{ color: 'black' }} />
+              </ListItemIcon>
+              <ListItemText 
+                primary="Creating Notes" 
+                secondary="Click on any cell in the grid to add or remove a note. Each row represents a different musical note."
+                sx={{ 
+                  '& .MuiListItemText-primary': { color: 'black', fontWeight: 'bold' },
+                  '& .MuiListItemText-secondary': { color: 'black' }
+                }}
+              />
+            </ListItem>
 
-        <Divider sx={{ my: 3 }} />
+            <ListItem>
+              <ListItemIcon>
+                <Keyboard sx={{ color: 'black' }} />
+              </ListItemIcon>
+              <ListItemText 
+                primary="Keyboard Shortcuts" 
+                secondary={`
+                  Hold a note key (C, D, E, F, G, A, B) and a number (1-5) for the octave, then click to place that note.
+                  Example: Hold 'C' + '3', then click to place a C3 note.
+                `}
+                sx={{ 
+                  '& .MuiListItemText-primary': { color: 'black', fontWeight: 'bold' },
+                  '& .MuiListItemText-secondary': { color: 'black' }
+                }}
+              />
+            </ListItem>
 
-        <GuideSection title="Basic Controls">
-          <Feature
-            icon={<PlayArrow />}
-            title="Play/Stop"
-            description="Click the floating purple button below the grid to play or stop your melody."
-          />
-          <Feature
-            icon={<VolumeUp />}
-            title="Volume & Tempo"
-            description="Use the sliders in the effects panel to adjust volume and speed."
-          />
-          <Feature
-            icon={<DragIndicator />}
-            title="Draggable Panels"
-            description="Grab the title bar of any panel to move it around the screen."
-          />
-        </GuideSection>
+            <ListItem>
+              <ListItemIcon>
+                <PlayArrow sx={{ color: 'black' }} />
+              </ListItemIcon>
+              <ListItemText 
+                primary="Playback Controls" 
+                secondary="Use the play, pause, and stop buttons to control your music. Toggle loop mode to repeat your sequence."
+                sx={{ 
+                  '& .MuiListItemText-primary': { color: 'black', fontWeight: 'bold' },
+                  '& .MuiListItemText-secondary': { color: 'black' }
+                }}
+              />
+            </ListItem>
 
-        <GuideSection title="Creating Music">
-          <Feature
-            icon={<MusicNote />}
-            title="Grid Interaction"
-            description="Click cells to toggle notes on/off. Each row represents a different musical note, from high (top) to low (bottom)."
-          />
-          <Feature
-            icon={<Undo />}
-            title="Undo/Redo"
-            description="Made a mistake? Use the undo/redo buttons in the bottom left corner."
-          />
-        </GuideSection>
+            <ListItem>
+              <ListItemIcon>
+                <AutoAwesome sx={{ color: 'black' }} />
+              </ListItemIcon>
+              <ListItemText 
+                primary="AI Assistant" 
+                secondary="Click the AI Assistant button (bottom right) to show/hide the AI features tray. Get intelligent suggestions for melodies, chords, and rhythms."
+                sx={{ 
+                  '& .MuiListItemText-primary': { color: 'black', fontWeight: 'bold' },
+                  '& .MuiListItemText-secondary': { color: 'black' }
+                }}
+              />
+            </ListItem>
+          </List>
 
-        <GuideSection title="Effects Panel">
-          <Feature
-            icon={<Equalizer />}
-            title="Sound Effects"
-            description="Add reverb, delay, and distortion to create unique sounds. Click the effects button (wave icon) to open the panel."
-          />
-        </GuideSection>
+          <Divider sx={{ my: 2 }} />
 
-        <GuideSection title="AI Features">
-          <Feature
-            icon={<AutoAwesome />}
-            title="AI Assistance"
-            description="Let AI help you create melodies, suggest chord progressions, and generate rhythm patterns. Click the magic wand icon to open the AI panel."
-          />
-        </GuideSection>
-
-        <GuideSection title="Tips & Tricks">
-          <Typography variant="body1" component="div">
-            <ul>
-              <li>Try starting with a simple pattern and gradually add more notes</li>
-              <li>Use effects sparingly - sometimes less is more!</li>
-              <li>Experiment with the AI suggestions to get inspiration</li>
-              <li>Save your favorite patterns using the save button</li>
-              <li>Try different tempos to change the feel of your melody</li>
-            </ul>
+          <Typography variant="h6" sx={{ mt: 2, mb: 1, color: 'black' }}>
+            Tips & Tricks
           </Typography>
-        </GuideSection>
-
-        <Divider sx={{ my: 3 }} />
-
-        <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
-          Have fun making music with Kitty's Music Box! If you need more help, click the help icon in the menu.
-        </Typography>
-      </Paper>
-    </Box>
+          <List>
+            <ListItem>
+              <ListItemText 
+                secondary="• Hover over note labels to see available keyboard shortcuts"
+                sx={{ '& .MuiListItemText-secondary': { color: 'black' } }}
+              />
+            </ListItem>
+            <ListItem>
+              <ListItemText 
+                secondary="• The AI Assistant will automatically suggest patterns based on your playing"
+                sx={{ '& .MuiListItemText-secondary': { color: 'black' } }}
+              />
+            </ListItem>
+            <ListItem>
+              <ListItemText 
+                secondary="• Drag the AI tray to reposition it anywhere on screen"
+                sx={{ '& .MuiListItemText-secondary': { color: 'black' } }}
+              />
+            </ListItem>
+          </List>
+        </Box>
+      </DialogContent>
+    </Dialog>
   );
-}
+};
+
+export default UserGuide;

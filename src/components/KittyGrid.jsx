@@ -74,16 +74,14 @@ export default function KittyGrid() {
   const initializeAudio = async () => {
     try {
       if (!audioContextStarted.current) {
-        await Tone.start();
-        console.log("Audio context started!");
-        audioContextStarted.current = true;
-        
-        // Create new synth
-        if (!synth.current) {
+        // Defer Tone.js initialization until user interaction
+        const startAudio = async () => {
+          await Tone.start();
+          console.log("Audio context started!");
+          audioContextStarted.current = true;
+          
           synth.current = new Tone.Synth({
-            oscillator: {
-              type: "triangle"
-            },
+            oscillator: { type: "triangle" },
             envelope: {
               attack: 0.005,
               decay: 0.1,
@@ -92,20 +90,31 @@ export default function KittyGrid() {
             }
           }).toDestination();
           
-          // Add effects
           const reverb = new Tone.Reverb(1.5).toDestination();
           const delay = new Tone.FeedbackDelay("8n", 0.1).toDestination();
           synth.current.connect(reverb);
           synth.current.connect(delay);
-          
           synth.current.volume.value = -6;
-        }
-        setAudioReady(true);
+          
+          setAudioReady(true);
+        };
+
+        // Add click listener to start audio
+        const handleClick = async () => {
+          await startAudio();
+          document.removeEventListener('click', handleClick);
+        };
+        document.addEventListener('click', handleClick);
       }
     } catch (error) {
-      console.error("Failed to initialize audio:", error);
+      console.error("Error initializing audio:", error);
     }
   };
+
+  // Initialize audio on mount
+  useEffect(() => {
+    initializeAudio();
+  }, []);
 
   useEffect(() => {
     const handleInteraction = async () => {

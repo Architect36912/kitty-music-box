@@ -1,152 +1,108 @@
 import React from 'react';
-import Joyride, { STATUS } from 'react-joyride';
-import { Button } from '@mui/material';
+import { Box, Paper, Typography, Button, IconButton } from '@mui/material';
+import { Close } from '@mui/icons-material';
 
-const tourSteps = [
-  {
-    target: 'body',
-    content: 'Welcome to Kitty\'s Music Box! Let\'s take a quick tour together! 🐱',
-    placement: 'center',
-    disableBeacon: true,
-  },
-  {
-    target: '.instrument-selector',
-    content: 'Choose between Marimba and Electronic sounds for your music! Each has its own unique character. 🎵',
-    placement: 'bottom',
-  },
-  {
-    target: '.grid-sequencer',
-    content: 'Create musical patterns by clicking on the grid cells. Each row represents a different note, and the sequence plays from left to right! 🎹',
-    placement: 'right',
-  },
-  {
-    target: '.playback-controls',
-    content: 'Control your music with these buttons! Play, pause, stop, or skip through your creation. ▶️',
-    placement: 'bottom',
-  },
-  {
-    target: '.slider-control',
-    content: 'Adjust the tempo (speed) and volume of your music using these sliders. 🎛️',
-    placement: 'bottom',
-  },
-  {
-    target: '.synth-panel',
-    content: 'This is your synthesizer panel! Play notes, adjust effects, and create amazing sounds! 🎹',
-    placement: 'left',
-  },
-  {
-    target: '.theme-toggle',
-    content: 'Switch between light and dark mode to match your mood! 🌙',
-    placement: 'left',
-  },
-  {
-    target: '.controls',
-    content: 'Access helpful tools here - restart your composition, get help, or change the theme! 🛠️',
-    placement: 'bottom',
-    isFixed: true,
-  }
-];
+export default function KittyTour({ isOpen, onClose }) {
+  if (!isOpen) return null;
 
-const KittyTour = ({ isOpen, onClose }) => {
-  const handleJoyrideCallback = (data) => {
-    const { status, type, step } = data;
-    if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
-      onClose();
+  const steps = [
+    {
+      title: "Welcome to Kitty's Music Box! ",
+      content: "Let's learn how to create beautiful music together!"
+    },
+    {
+      title: "The Grid",
+      content: "Click on any cell to add or remove a note. The grid represents different musical notes (vertically) over time (horizontally)."
+    },
+    {
+      title: "Keyboard Shortcuts",
+      content: "Use keyboard shortcuts to quickly set note values:\n\n" +
+        "• Press 'C' + number (1-8) then click a cell to set a C note (e.g., C+3 for C3)\n" +
+        "• Press 'D' + number for D notes\n" +
+        "• Press 'E' + number for E notes\n" +
+        "• Press 'F' + number for F notes\n" +
+        "• Press 'G' + number for G notes\n" +
+        "• Press 'A' + number for A notes\n" +
+        "• Press 'B' + number for B notes"
+    },
+    {
+      title: "AI Assistant",
+      content: "The AI assistant will pop up to help you create melodies. It can suggest patterns, chords, and rhythms based on what you're playing."
+    },
+    {
+      title: "Playback Controls",
+      content: "Use the play, pause, and stop buttons at the bottom to control your music. Adjust tempo and volume using the sliders."
     }
-  };
+  ];
 
   return (
-    <Joyride
-      steps={tourSteps}
-      run={isOpen}
-      continuous
-      showProgress
-      showSkipButton
-      disableOverlayClose
-      hideCloseButton={false}
-      spotlightClicks={true}
-      styles={{
-        options: {
-          primaryColor: '#007AFF',
-          backgroundColor: '#ffffff',
-          textColor: '#000000',
-          zIndex: 10000,
-        },
-        spotlight: {
-          backgroundColor: 'transparent',
-        },
-        tooltip: {
-          backgroundColor: '#ffffff',
-          textAlign: 'left',
-          padding: '20px',
-          borderRadius: '8px',
-          boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-        },
-        tooltipTitle: {
-          color: '#000000',
-          fontSize: '18px',
-          fontWeight: 'bold',
-          marginBottom: '8px',
-        },
-        tooltipContent: {
-          color: '#000000',
-          fontSize: '14px',
-          lineHeight: '1.5',
-        },
-        buttonNext: {
-          backgroundColor: '#007AFF',
-          color: '#ffffff',
-          padding: '10px 20px',
-          fontSize: '14px',
-          fontWeight: 'bold',
-          border: 'none',
-          borderRadius: '4px',
-          cursor: 'pointer',
-          transition: 'all 0.2s ease',
-          '&:hover': {
-            backgroundColor: '#0056b3',
-          },
-        },
-        buttonBack: {
-          color: '#007AFF',
-          marginRight: '10px',
-          padding: '10px 20px',
-          fontSize: '14px',
-          fontWeight: 'bold',
-          border: '1px solid #007AFF',
-          borderRadius: '4px',
-          cursor: 'pointer',
-          backgroundColor: 'transparent',
-          transition: 'all 0.2s ease',
-          '&:hover': {
-            backgroundColor: 'rgba(0,122,255,0.1)',
-          },
-        },
-        buttonSkip: {
-          color: '#666666',
-          opacity: 0.7,
-          fontSize: '14px',
-          '&:hover': {
-            opacity: 1,
-          },
-        },
-        buttonClose: {
-          color: '#666666',
-          opacity: 0.7,
-          '&:hover': {
-            opacity: 1,
-          },
-        },
+    <Box
+      sx={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        bgcolor: 'rgba(0,0,0,0.7)',
+        zIndex: 2000,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
       }}
-      locale={{
-        last: 'End Tour',
-        skip: 'Skip Tour',
-        next: 'Next',
-        back: 'Back',
-        close: 'Close',
-      }}
-    />
-  );
-};
+    >
+      <Paper
+        sx={{
+          maxWidth: 600,
+          width: '90%',
+          p: 4,
+          position: 'relative',
+          bgcolor: 'white',
+          color: 'black'
+        }}
+      >
+        <IconButton
+          onClick={onClose}
+          sx={{
+            position: 'absolute',
+            right: 8,
+            top: 8,
+            color: 'black'
+          }}
+        >
+          <Close />
+        </IconButton>
 
-export default KittyTour;
+        {steps.map((step, index) => (
+          <Box key={index} sx={{ mb: 4 }}>
+            <Typography variant="h5" sx={{ mb: 2, color: 'black', fontWeight: 'bold' }}>
+              {step.title}
+            </Typography>
+            <Typography 
+              sx={{ 
+                color: 'black',
+                whiteSpace: 'pre-line',
+                lineHeight: 1.6
+              }}
+            >
+              {step.content}
+            </Typography>
+          </Box>
+        ))}
+
+        <Button
+          variant="contained"
+          onClick={onClose}
+          sx={{
+            mt: 2,
+            bgcolor: '#ff69b4',
+            '&:hover': {
+              bgcolor: '#ff1493'
+            }
+          }}
+        >
+          Got it!
+        </Button>
+      </Paper>
+    </Box>
+  );
+}

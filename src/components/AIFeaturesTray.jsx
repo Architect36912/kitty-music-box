@@ -1,118 +1,119 @@
-import React from 'react';
-import { Stack, Button, Typography, CircularProgress, Chip } from '@mui/material';
-import { AutoAwesome, MusicNote, AutoMode, Piano } from '@mui/icons-material';
+import React, { useState } from 'react';
+import { 
+  Box, 
+  Button, 
+  Typography, 
+  List, 
+  ListItem, 
+  ListItemText,
+  ListItemIcon,
+  Divider,
+  CircularProgress
+} from '@mui/material';
+import {
+  AutoAwesome,
+  MusicNote,
+  Refresh,
+  Add
+} from '@mui/icons-material';
 
-// Simulated AI functions (replace with actual AI implementation)
-const generateMelody = () => new Promise(resolve => 
-  setTimeout(() => resolve(Array(15).fill().map(() => Math.random() > 0.7)), 1000)
-);
-
-const suggestChords = () => new Promise(resolve =>
-  setTimeout(() => resolve(['Cmaj', 'Amin', 'Fmaj', 'Gmaj']), 1000)
-);
-
-const suggestRhythm = () => new Promise(resolve =>
-  setTimeout(() => resolve([1, 0, 1, 0, 1, 1, 0, 1]), 1000)
-);
+// Mock AI suggestions (replace with real AI later)
+const MELODY_SUGGESTIONS = [
+  {
+    name: "Happy Melody",
+    notes: ["C4", "E4", "G4", "C5", "G4", "E4", "C4"],
+    type: "melody"
+  },
+  {
+    name: "Dreamy Pattern",
+    notes: ["F4", "A4", "C5", "E5", "C5", "A4", "F4"],
+    type: "melody"
+  },
+  {
+    name: "Bouncy Rhythm",
+    notes: ["G4", "B4", "D5", "G5", "D5", "B4", "G4"],
+    type: "rhythm"
+  }
+];
 
 export default function AIFeaturesTray({ onApplyPattern }) {
-  const [loading, setLoading] = React.useState(false);
-  const [suggestions, setSuggestions] = React.useState({
-    chords: [],
-    rhythm: []
-  });
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [suggestions, setSuggestions] = useState(MELODY_SUGGESTIONS);
 
-  const handleGenerateMelody = async () => {
-    setLoading(true);
-    try {
-      const pattern = await generateMelody();
+  const handleGenerateNew = () => {
+    setIsGenerating(true);
+    // Simulate AI generation
+    setTimeout(() => {
+      const newSuggestions = [
+        ...suggestions,
+        {
+          name: "New Melody " + Math.floor(Math.random() * 100),
+          notes: ["C4", "E4", "G4", "B4", "A4", "F4", "D4"],
+          type: "melody"
+        }
+      ];
+      setSuggestions(newSuggestions);
+      setIsGenerating(false);
+    }, 1500);
+  };
+
+  const handleApplyPattern = (pattern) => {
+    if (onApplyPattern) {
       onApplyPattern(pattern);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleSuggestChords = async () => {
-    setLoading(true);
-    try {
-      const chords = await suggestChords();
-      setSuggestions(prev => ({ ...prev, chords }));
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleSuggestRhythm = async () => {
-    setLoading(true);
-    try {
-      const rhythm = await suggestRhythm();
-      setSuggestions(prev => ({ ...prev, rhythm }));
-    } finally {
-      setLoading(false);
     }
   };
 
   return (
-    <Stack spacing={3}>
-      <Typography variant="h6">AI Features</Typography>
+    <Box sx={{ width: 300, p: 2 }}>
+      <Box sx={{ mb: 3, display: 'flex', alignItems: 'center', gap: 1 }}>
+        <AutoAwesome color="primary" />
+        <Typography variant="h6" color="primary">
+          AI Music Suggestions
+        </Typography>
+      </Box>
 
-      <Stack spacing={2}>
-        <Button
-          variant="contained"
-          startIcon={loading ? <CircularProgress size={20} /> : <AutoAwesome />}
-          onClick={handleGenerateMelody}
-          disabled={loading}
-        >
-          Generate Melody
-        </Button>
+      <Button
+        variant="contained"
+        color="primary"
+        startIcon={isGenerating ? <CircularProgress size={20} color="inherit" /> : <Refresh />}
+        onClick={handleGenerateNew}
+        disabled={isGenerating}
+        fullWidth
+        sx={{ mb: 2 }}
+      >
+        {isGenerating ? 'Generating...' : 'Generate New Ideas'}
+      </Button>
 
-        <Button
-          variant="contained"
-          startIcon={loading ? <CircularProgress size={20} /> : <Piano />}
-          onClick={handleSuggestChords}
-          disabled={loading}
-        >
-          Suggest Chords
-        </Button>
-
-        {suggestions.chords.length > 0 && (
-          <Stack direction="row" spacing={1} flexWrap="wrap">
-            {suggestions.chords.map((chord, i) => (
-              <Chip
-                key={i}
-                label={chord}
-                icon={<MusicNote />}
-                onClick={() => {}}
-                color="primary"
-                variant="outlined"
+      <List>
+        {suggestions.map((suggestion, index) => (
+          <React.Fragment key={index}>
+            <ListItem
+              secondaryAction={
+                <Button
+                  size="small"
+                  startIcon={<Add />}
+                  onClick={() => handleApplyPattern(suggestion)}
+                >
+                  Apply
+                </Button>
+              }
+            >
+              <ListItemIcon>
+                <MusicNote color="primary" />
+              </ListItemIcon>
+              <ListItemText
+                primary={suggestion.name}
+                secondary={`${suggestion.notes.length} notes - ${suggestion.type}`}
               />
-            ))}
-          </Stack>
-        )}
+            </ListItem>
+            {index < suggestions.length - 1 && <Divider />}
+          </React.Fragment>
+        ))}
+      </List>
 
-        <Button
-          variant="contained"
-          startIcon={loading ? <CircularProgress size={20} /> : <AutoMode />}
-          onClick={handleSuggestRhythm}
-          disabled={loading}
-        >
-          Suggest Rhythm
-        </Button>
-
-        {suggestions.rhythm.length > 0 && (
-          <Stack direction="row" spacing={1} flexWrap="wrap">
-            {suggestions.rhythm.map((beat, i) => (
-              <Chip
-                key={i}
-                label={beat ? '♪' : '𝄽'}
-                onClick={() => {}}
-                color={beat ? 'primary' : 'default'}
-                variant="outlined"
-              />
-            ))}
-          </Stack>
-        )}
-      </Stack>
-    </Stack>
+      <Typography variant="caption" color="text.secondary" sx={{ mt: 2, display: 'block' }}>
+        Click 'Apply' to add a pattern to your grid. Generate new ideas anytime!
+      </Typography>
+    </Box>
   );
 }

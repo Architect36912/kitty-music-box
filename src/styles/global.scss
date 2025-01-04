@@ -251,6 +251,151 @@ body {
   }
 }
 
+.grid-sequencer {
+  .grid {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 8px;
+
+    .row {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+
+      .note-label {
+        width: 60px;
+        font-weight: bold;
+        color: #666;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        
+        .shortcut-hint {
+          font-size: 0.8em;
+          color: #ff69b4;
+          margin-left: 8px;
+          padding: 2px 4px;
+          background: rgba(255, 105, 180, 0.1);
+          border-radius: 4px;
+        }
+      }
+
+      .cell {
+        width: 40px;
+        height: 40px;
+        border: 2px solid #ddd;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+
+        &:hover {
+          background-color: rgba(255, 105, 180, 0.1);
+          border-color: #ff69b4;
+        }
+
+        &.active {
+          background-color: #ff69b4;
+          border-color: #ff1493;
+        }
+
+        &.current {
+          border-color: #1976d2;
+          box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.3);
+        }
+
+        &.selected {
+          border-color: #ff69b4;
+          box-shadow: 0 0 0 2px rgba(255, 105, 180, 0.3);
+        }
+      }
+    }
+  }
+
+  .controls {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+    padding: 8px;
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 8px;
+  }
+}
+
+.grid-sequencer {
+  .note-label {
+    position: relative;
+    
+    .shortcut-hint {
+      position: absolute;
+      left: 100%;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(255, 105, 180, 0.9);
+      color: white;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      white-space: nowrap;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.2s ease-in-out;
+      z-index: 1000;
+      
+      &:before {
+        content: '';
+        position: absolute;
+        right: 100%;
+        top: 50%;
+        transform: translateY(-50%);
+        border: 6px solid transparent;
+        border-right-color: rgba(255, 105, 180, 0.9);
+      }
+    }
+    
+    &:hover .shortcut-hint {
+      opacity: 1;
+    }
+  }
+}
+
+// AI Tray Styles
+.ai-tray {
+  padding: 16px;
+  min-width: 300px;
+  
+  .tray-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+    
+    .MuiSvgIcon-root {
+      color: #ff69b4;
+    }
+  }
+  
+  .suggestion-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    
+    .suggestion-item {
+      padding: 8px;
+      border-radius: 4px;
+      background: rgba(0, 0, 0, 0.05);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      
+      &:hover {
+        background: rgba(255, 105, 180, 0.1);
+      }
+    }
+  }
+}
+
 .MuiIconButton-root {
   color: #fff !important;
   border: 1px solid transparent;
@@ -325,5 +470,58 @@ body {
   transition: transform 0.2s ease;
   &:hover {
     transform: scale(1.05);
+  }
+}
+
+// AI Tray Styles
+.ai-tray {
+  position: fixed;
+  z-index: 1300;
+  transition: all 0.3s ease-in-out;
+  
+  .MuiPaper-root {
+    background: linear-gradient(135deg, rgba(26, 26, 26, 0.95) 0%, rgba(10, 10, 10, 0.95) 100%);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 105, 180, 0.3);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    
+    &:hover {
+      border-color: rgba(255, 105, 180, 0.5);
+      box-shadow: 0 8px 32px rgba(255, 105, 180, 0.2);
+    }
+  }
+  
+  .drag-handle {
+    background: linear-gradient(45deg, #ff69b4, #ff1493);
+    cursor: grab;
+    
+    &:active {
+      cursor: grabbing;
+    }
+  }
+  
+  .ai-content {
+    padding: 16px;
+    min-width: 300px;
+    
+    .MuiButton-root {
+      margin: 8px 0;
+      background: linear-gradient(45deg, #ff69b4, #ff1493);
+      color: white;
+      
+      &:hover {
+        background: linear-gradient(45deg, #ff1493, #ff69b4);
+      }
+    }
+    
+    .MuiChip-root {
+      margin: 4px;
+      background: rgba(255, 105, 180, 0.1);
+      border: 1px solid rgba(255, 105, 180, 0.3);
+      
+      &:hover {
+        background: rgba(255, 105, 180, 0.2);
+      }
+    }
   }
 }
